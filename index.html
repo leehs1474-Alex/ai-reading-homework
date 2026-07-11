@@ -2,12 +2,72 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  >
+
+  <meta
+    name="description"
+    content="온라인 Reading 숙제 시스템"
+  >
+
   <title>Reading Homework</title>
+
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-  <h1>AI Reading Homework System</h1>
-  <p>GitHub Pages 연결 테스트</p>
+  <main class="app-shell">
+    <section class="homework-card">
+
+      <header class="header-area">
+        <p class="academy-label">READING HOMEWORK</p>
+        <h1>오늘의 Reading 숙제</h1>
+
+        <p class="intro-text">
+          반과 이름을 선택하면 숙제를 시작할 수 있어요.
+        </p>
+      </header>
+
+      <section class="form-area">
+        <div class="field-group">
+          <label for="classSelect">반 선택</label>
+
+          <select id="classSelect" disabled>
+            <option value="">반 정보를 불러오는 중...</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label for="studentSelect">이름 선택</label>
+
+          <select id="studentSelect" disabled>
+            <option value="">먼저 반을 선택하세요</option>
+          </select>
+        </div>
+
+        <button
+          id="startButton"
+          type="button"
+          disabled
+        >
+          숙제 시작
+        </button>
+
+        <p
+          id="statusMessage"
+          class="status-message"
+          aria-live="polite"
+        >
+          시스템을 준비하고 있습니다.
+        </p>
+      </section>
+
+    </section>
+  </main>
+
+  <script src="app.js"></script>
 </body>
 </html>
