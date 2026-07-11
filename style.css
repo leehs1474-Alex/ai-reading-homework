@@ -1,0 +1,207 @@
+:root {
+  --background-color: #f3f6fb;
+  --card-color: #ffffff;
+  --main-color: #3157d5;
+  --main-dark-color: #2443a8;
+  --text-color: #1f2937;
+  --sub-text-color: #6b7280;
+  --border-color: #d8deea;
+  --disabled-color: #b8c0cf;
+  --error-color: #c0392b;
+  --success-color: #16794b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+
+  min-height: 100vh;
+  min-height: 100dvh;
+
+  font-family:
+    Arial,
+    "Apple SD Gothic Neo",
+    "Noto Sans KR",
+    sans-serif;
+
+  background: var(--background-color);
+  color: var(--text-color);
+}
+
+button,
+select {
+  font: inherit;
+}
+
+.app-shell {
+  min-height: 100vh;
+  min-height: 100dvh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding:
+    max(24px, env(safe-area-inset-top))
+    18px
+    max(24px, env(safe-area-inset-bottom));
+}
+
+.homework-card {
+  width: 100%;
+  max-width: 440px;
+
+  padding: 30px 22px;
+
+  background: var(--card-color);
+  border-radius: 22px;
+
+  box-shadow:
+    0 16px 45px
+    rgba(30, 52, 100, 0.12);
+}
+
+.header-area {
+  margin-bottom: 28px;
+}
+
+.academy-label {
+  margin: 0 0 10px;
+
+  color: var(--main-color);
+
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+}
+
+h1 {
+  margin: 0;
+
+  font-size: clamp(27px, 8vw, 34px);
+  line-height: 1.25;
+}
+
+.intro-text {
+  margin: 14px 0 0;
+
+  color: var(--sub-text-color);
+
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.form-area {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+label {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+select {
+  width: 100%;
+  min-height: 54px;
+
+  padding: 0 14px;
+
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+
+  background: #ffffff;
+  color: var(--text-color);
+
+  font-size: 16px;
+  outline: none;
+}
+
+select:focus {
+  border-color: var(--main-color);
+
+  box-shadow:
+    0 0 0 3px
+    rgba(49, 87, 213, 0.12);
+}
+
+select:disabled {
+  background: #f1f3f7;
+  color: #8b93a1;
+}
+
+button {
+  width: 100%;
+  min-height: 56px;
+
+  margin-top: 4px;
+
+  border: 0;
+  border-radius: 14px;
+
+  background: var(--main-color);
+  color: #ffffff;
+
+  font-size: 17px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.12s ease,
+    background-color 0.12s ease;
+}
+
+button:hover:not(:disabled) {
+  background: var(--main-dark-color);
+}
+
+button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+button:disabled {
+  background: var(--disabled-color);
+  cursor: not-allowed;
+}
+
+.status-message {
+  min-height: 22px;
+
+  margin: 0;
+
+  text-align: center;
+
+  color: var(--sub-text-color);
+
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.status-message.success {
+  color: var(--success-color);
+}
+
+.status-message.error {
+  color: var(--error-color);
+}
+
+@media (max-width: 380px) {
+  .homework-card {
+    padding: 26px 18px;
+  }
+}
