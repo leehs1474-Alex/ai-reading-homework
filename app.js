@@ -130,7 +130,7 @@ function handleStudentChange() {
   }
 }
 
-function handleStartClick() {
+async function handleStartClick() {
   const selectedOption =
     studentSelect.options[studentSelect.selectedIndex];
 
@@ -147,16 +147,51 @@ function handleStartClick() {
     return;
   }
 
+  startButton.disabled = true;
+  startButton.textContent = "숙제를 불러오는 중...";
+
   showStatus(
-    `${studentName} 학생의 숙제를 확인했습니다.`,
-    "success"
+    `${studentName} 학생의 숙제를 확인하고 있습니다.`,
+    ""
   );
 
-  console.log({
-    className: className,
-    studentId: studentId,
-    studentName: studentName
-  });
+  try {
+    const data = await requestApi(
+      "getCurrentHomework",
+      {
+        studentId: studentId,
+        className: className
+      }
+    );
+
+    if (!data.success) {
+      throw new Error(
+        data.message || "숙제를 불러오지 못했습니다."
+      );
+    }
+
+    if (!data.hasHomework || !data.homework) {
+      showStatus(
+        "현재 해야 할 숙제가 없습니다.",
+        "success"
+      );
+
+      return;
+    }
+
+    showHomeworkScreen(data.homework);
+
+  } catch (error) {
+    console.error(error);
+
+    showStatus(
+      "숙제를 불러오지 못했습니다. 다시 시도해주세요.",
+      "error"
+    );
+  } finally {
+    startButton.disabled = false;
+    startButton.textContent = "숙제 시작";
+  }
 }
 
 async function requestApi(action, parameters = {}) {
@@ -233,4 +268,56 @@ function showStatus(message, type) {
   if (type) {
     statusMessage.classList.add(type);
   }
+}
+function showHomeworkScreen(homework) {
+  const loginScreen =
+    document.getElementById("loginScreen");
+
+  const homeworkScreen =
+    document.getElementById("homeworkScreen");
+
+  const homeworkTitle =
+    document.getElementById("homeworkTitle");
+
+  const bookTitle =
+    document.getElementById("bookTitle");
+
+  const sentenceProgress =
+    document.getElementById("sentenceProgress");
+
+  const sentenceText =
+    document.getElementById("sentenceText");
+
+  const homeworkStatus =
+    document.getElementById("homeworkStatus");
+
+  const firstSentence =
+    homework.sentences?.[0];
+
+  if (!firstSentence) {
+    showStatus(
+      "숙제 문장을 찾을 수 없습니다.",
+      "error"
+    );
+
+    return;
+  }
+
+  homeworkTitle.textContent =
+    homework.homeworkTitle || "Reading 숙제";
+
+  bookTitle.textContent =
+    homework.bookTitle || "";
+
+  sentenceProgress.textContent =
+    `문장 1 / ${homework.sentenceCount}`;
+
+  sentenceText.textContent =
+    firstSentence.sentenceText;
+
+  homeworkStatus.textContent =
+    "문장을 소리 내어 읽어보세요.";
+
+  loginScreen.classList.add("hidden");
+  homeworkScreen.classList.remove("hidden");
 }
