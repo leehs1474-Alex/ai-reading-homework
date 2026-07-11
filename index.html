@@ -20,13 +20,17 @@
 
 <body>
   <main class="app-shell">
-    <section
-  id="loginScreen"
-  class="homework-card"
->
 
+    <!-- 학생 선택 화면 -->
+    <section
+      id="loginScreen"
+      class="homework-card"
+    >
       <header class="header-area">
-        <p class="academy-label">READING HOMEWORK</p>
+        <p class="academy-label">
+          READING HOMEWORK
+        </p>
+
         <h1>오늘의 Reading 숙제</h1>
 
         <p class="intro-text">
@@ -36,18 +40,32 @@
 
       <section class="form-area">
         <div class="field-group">
-          <label for="classSelect">반 선택</label>
+          <label for="classSelect">
+            반 선택
+          </label>
 
-          <select id="classSelect" disabled>
-            <option value="">반 정보를 불러오는 중...</option>
+          <select
+            id="classSelect"
+            disabled
+          >
+            <option value="">
+              반 정보를 불러오는 중...
+            </option>
           </select>
         </div>
 
         <div class="field-group">
-          <label for="studentSelect">이름 선택</label>
+          <label for="studentSelect">
+            이름 선택
+          </label>
 
-          <select id="studentSelect" disabled>
-            <option value="">먼저 반을 선택하세요</option>
+          <select
+            id="studentSelect"
+            disabled
+          >
+            <option value="">
+              먼저 반을 선택하세요
+            </option>
           </select>
         </div>
 
@@ -67,51 +85,78 @@
           시스템을 준비하고 있습니다.
         </p>
       </section>
-
     </section>
+
+    <!-- Reading 숙제 화면 -->
     <section
-  id="homeworkScreen"
-  class="homework-card hidden"
->
+      id="homeworkScreen"
+      class="homework-card hidden"
+    >
+      <header class="header-area">
+        <p class="academy-label">
+          TODAY'S HOMEWORK
+        </p>
 
-  <header class="header-area">
+        <h1 id="homeworkTitle">
+          Reading 숙제
+        </h1>
 
-    <p class="academy-label">
-      TODAY'S HOMEWORK
-    </p>
+        <p
+          id="bookTitle"
+          class="intro-text"
+        ></p>
+      </header>
 
-    <h1 id="homeworkTitle">
-      Reading 숙제
-    </h1>
+      <section class="sentence-area">
+        <p
+          id="sentenceProgress"
+          class="sentence-progress"
+        ></p>
 
-    <p
-      id="bookTitle"
-      class="intro-text"
-    ></p>
+        <div class="sentence-box">
+          <p id="sentenceText"></p>
+        </div>
 
-  </header>
+        <!-- 녹음 영역 -->
+        <section
+          class="recording-area"
+          aria-label="문장 녹음"
+        >
+          <button
+            id="recordButton"
+            type="button"
+          >
+            🎤 녹음 시작
+          </button>
 
-  <section class="sentence-area">
+          <p
+            id="recordingTimer"
+            class="recording-timer"
+            aria-live="polite"
+          >
+            00:00 / 00:30
+          </p>
 
-    <p
-      id="sentenceProgress"
-      class="sentence-progress"
-    ></p>
+          <audio
+            id="recordingPlayer"
+            class="recording-player hidden"
+            controls
+            preload="metadata"
+          >
+            이 브라우저에서는 음성 재생을 지원하지 않습니다.
+          </audio>
+        </section>
 
-    <div class="sentence-box">
+        <p
+          id="homeworkStatus"
+          class="status-message"
+          aria-live="polite"
+        >
+          문장을 소리 내어 읽어보세요.
+        </p>
+      </section>
+    </section>
 
-      <p id="sentenceText"></p>
-
-    </div>
-
-    <p
-      id="homeworkStatus"
-      class="status-message"
-    ></p>
-
-  </section>
-
-</section>
   </main>
 
   <script src="app.js"></script>
