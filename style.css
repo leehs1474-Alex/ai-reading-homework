@@ -205,3 +205,44 @@ button:disabled {
     padding: 26px 18px;
   }
 }
+.hidden {
+  display: none;
+}
+
+.sentence-area {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.sentence-progress {
+  margin: 0;
+  color: var(--main-color);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.sentence-box {
+  min-height: 180px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 28px 22px;
+
+  border: 2px solid #dbe3ff;
+  border-radius: 18px;
+
+  background: #f8faff;
+}
+
+.sentence-box p {
+  margin: 0;
+
+  text-align: center;
+
+  font-size: clamp(25px, 7vw, 34px);
+  font-weight: 700;
+  line-height: 1.5;
+}
