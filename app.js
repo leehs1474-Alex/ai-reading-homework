@@ -7,6 +7,14 @@ const classSelect = document.getElementById("classSelect");
 const studentSelect = document.getElementById("studentSelect");
 const startButton = document.getElementById("startButton");
 const statusMessage = document.getElementById("statusMessage");
+const recordButton = document.getElementById("recordButton");
+
+let mediaRecorder = null;
+let microphoneStream = null;
+let recordedChunks = [];
+let recordingAudioUrl = "";
+let recordingTimerId = null;
+let recordingSeconds = 0;
 
 document.addEventListener("DOMContentLoaded", initializeApp);
 
@@ -19,6 +27,7 @@ function bindEvents() {
   classSelect.addEventListener("change", handleClassChange);
   studentSelect.addEventListener("change", handleStudentChange);
   startButton.addEventListener("click", handleStartClick);
+  recordButton.addEventListener("click", handleRecordButtonClick);
 }
 
 async function loadClasses() {
@@ -35,10 +44,7 @@ async function loadClasses() {
 
     classSelect.disabled = false;
 
-    showStatus(
-      "반을 선택해주세요.",
-      ""
-    );
+    showStatus("반을 선택해주세요.", "");
   } catch (error) {
     console.error(error);
 
@@ -73,12 +79,9 @@ async function handleClassChange() {
   showStatus("학생 정보를 불러오고 있습니다.", "");
 
   try {
-    const data = await requestApi(
-      "getStudents",
-      {
-        className: className
-      }
-    );
+    const data = await requestApi("getStudents", {
+      className: className
+    });
 
     if (!data.success) {
       throw new Error(data.message || "학생 정보를 불러오지 못했습니다.");
@@ -89,28 +92,18 @@ async function handleClassChange() {
     studentSelect.disabled = false;
 
     if (!data.students || data.students.length === 0) {
-      showStatus(
-        "이 반에 등록된 학생이 없습니다.",
-        "error"
-      );
-
+      showStatus("이 반에 등록된 학생이 없습니다.", "error");
       return;
     }
 
-    showStatus(
-      "이름을 선택해주세요.",
-      ""
-    );
+    showStatus("이름을 선택해주세요.", "");
   } catch (error) {
     console.error(error);
 
     studentSelect.innerHTML =
       '<option value="">학생 정보를 불러오지 못했습니다</option>';
 
-    showStatus(
-      "학생 정보를 불러오지 못했습니다.",
-      "error"
-    );
+    showStatus("학생 정보를 불러오지 못했습니다.", "error");
   }
 }
 
@@ -118,15 +111,9 @@ function handleStudentChange() {
   startButton.disabled = !studentSelect.value;
 
   if (studentSelect.value) {
-    showStatus(
-      "숙제 시작 버튼을 눌러주세요.",
-      "success"
-    );
+    showStatus("숙제 시작 버튼을 눌러주세요.", "success");
   } else {
-    showStatus(
-      "이름을 선택해주세요.",
-      ""
-    );
+    showStatus("이름을 선택해주세요.", "");
   }
 }
 
@@ -139,48 +126,31 @@ async function handleStartClick() {
   const className = classSelect.value;
 
   if (!className || !studentId) {
-    showStatus(
-      "반과 이름을 모두 선택해주세요.",
-      "error"
-    );
-
+    showStatus("반과 이름을 모두 선택해주세요.", "error");
     return;
   }
 
   startButton.disabled = true;
   startButton.textContent = "숙제를 불러오는 중...";
 
-  showStatus(
-    `${studentName} 학생의 숙제를 확인하고 있습니다.`,
-    ""
-  );
+  showStatus(`${studentName} 학생의 숙제를 확인하고 있습니다.`, "");
 
   try {
-    const data = await requestApi(
-      "getCurrentHomework",
-      {
-        studentId: studentId,
-        className: className
-      }
-    );
+    const data = await requestApi("getCurrentHomework", {
+      studentId: studentId,
+      className: className
+    });
 
     if (!data.success) {
-      throw new Error(
-        data.message || "숙제를 불러오지 못했습니다."
-      );
+      throw new Error(data.message || "숙제를 불러오지 못했습니다.");
     }
 
     if (!data.hasHomework || !data.homework) {
-      showStatus(
-        "현재 해야 할 숙제가 없습니다.",
-        "success"
-      );
-
+      showStatus("현재 해야 할 숙제가 없습니다.", "success");
       return;
     }
 
     showHomeworkScreen(data.homework);
-
   } catch (error) {
     console.error(error);
 
@@ -199,7 +169,7 @@ async function requestApi(action, parameters = {}) {
 
   url.searchParams.set("action", action);
 
-  Object.entries(parameters).forEach(function([key, value]) {
+  Object.entries(parameters).forEach(function ([key, value]) {
     url.searchParams.set(key, value);
   });
 
@@ -210,9 +180,7 @@ async function requestApi(action, parameters = {}) {
   });
 
   if (!response.ok) {
-    throw new Error(
-      `API 요청 실패: ${response.status}`
-    );
+    throw new Error(`API 요청 실패: ${response.status}`);
   }
 
   return response.json();
@@ -222,7 +190,7 @@ function renderClassOptions(classes) {
   classSelect.innerHTML =
     '<option value="">반을 선택하세요</option>';
 
-  classes.forEach(function(className) {
+  classes.forEach(function (className) {
     const option = document.createElement("option");
 
     option.value = className;
@@ -236,7 +204,7 @@ function renderStudentOptions(students) {
   studentSelect.innerHTML =
     '<option value="">이름을 선택하세요</option>';
 
-  students.forEach(function(student) {
+  students.forEach(function (student) {
     const option = document.createElement("option");
 
     option.value = student.studentId;
@@ -269,6 +237,7 @@ function showStatus(message, type) {
     statusMessage.classList.add(type);
   }
 }
+
 function showHomeworkScreen(homework) {
   const loginScreen =
     document.getElementById("loginScreen");
@@ -295,11 +264,7 @@ function showHomeworkScreen(homework) {
     homework.sentences?.[0];
 
   if (!firstSentence) {
-    showStatus(
-      "숙제 문장을 찾을 수 없습니다.",
-      "error"
-    );
-
+    showStatus("숙제 문장을 찾을 수 없습니다.", "error");
     return;
   }
 
@@ -321,6 +286,7 @@ function showHomeworkScreen(homework) {
   loginScreen.classList.add("hidden");
   homeworkScreen.classList.remove("hidden");
 }
+
 async function handleRecordButtonClick() {
   if (mediaRecorder && mediaRecorder.state === "recording") {
     stopRecording();
@@ -331,9 +297,6 @@ async function handleRecordButtonClick() {
 }
 
 async function startRecording() {
-  const recordButton =
-    document.getElementById("recordButton");
-
   const recordingPlayer =
     document.getElementById("recordingPlayer");
 
@@ -388,9 +351,10 @@ async function startRecording() {
     );
 
     startRecordingTimer();
-
   } catch (error) {
     console.error(error);
+
+    stopMicrophoneStream();
 
     showHomeworkStatus(
       getMicrophoneErrorMessage(error),
@@ -412,9 +376,6 @@ function stopRecording() {
 
   mediaRecorder.stop();
   stopRecordingTimer();
-
-  const recordButton =
-    document.getElementById("recordButton");
 
   recordButton.textContent = "🎤 다시 녹음";
   recordButton.classList.remove("recording");
@@ -453,6 +414,8 @@ function handleRecordingStop() {
 
 function startRecordingTimer() {
   stopRecordingTimer();
+
+  recordingSeconds = 0;
   updateRecordingTimer();
 
   const timerElement =
@@ -460,7 +423,7 @@ function startRecordingTimer() {
 
   timerElement.classList.add("active");
 
-  recordingTimerId = window.setInterval(function() {
+  recordingTimerId = window.setInterval(function () {
     recordingSeconds += 1;
     updateRecordingTimer();
 
@@ -502,7 +465,7 @@ function stopMicrophoneStream() {
 
   microphoneStream
     .getTracks()
-    .forEach(function(track) {
+    .forEach(function (track) {
       track.stop();
     });
 
@@ -531,6 +494,10 @@ function getMicrophoneErrorMessage(error) {
 
   if (error.name === "NotFoundError") {
     return "사용 가능한 마이크를 찾을 수 없습니다.";
+  }
+
+  if (error.name === "NotReadableError") {
+    return "마이크를 다른 프로그램에서 사용 중인지 확인해주세요.";
   }
 
   return "녹음을 시작하지 못했습니다.";
