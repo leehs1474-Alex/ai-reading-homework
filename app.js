@@ -321,3 +321,217 @@ function showHomeworkScreen(homework) {
   loginScreen.classList.add("hidden");
   homeworkScreen.classList.remove("hidden");
 }
+async function handleRecordButtonClick() {
+  if (mediaRecorder && mediaRecorder.state === "recording") {
+    stopRecording();
+    return;
+  }
+
+  await startRecording();
+}
+
+async function startRecording() {
+  const recordButton =
+    document.getElementById("recordButton");
+
+  const recordingPlayer =
+    document.getElementById("recordingPlayer");
+
+  if (!navigator.mediaDevices || !window.MediaRecorder) {
+    showHomeworkStatus(
+      "이 브라우저에서는 녹음 기능을 사용할 수 없습니다.",
+      "error"
+    );
+
+    return;
+  }
+
+  try {
+    microphoneStream =
+      await navigator.mediaDevices.getUserMedia({
+        audio: true
+      });
+
+    recordedChunks = [];
+    recordingSeconds = 0;
+
+    if (recordingAudioUrl) {
+      URL.revokeObjectURL(recordingAudioUrl);
+      recordingAudioUrl = "";
+    }
+
+    recordingPlayer.pause();
+    recordingPlayer.removeAttribute("src");
+    recordingPlayer.classList.add("hidden");
+
+    mediaRecorder =
+      new MediaRecorder(microphoneStream);
+
+    mediaRecorder.addEventListener(
+      "dataavailable",
+      handleRecordingData
+    );
+
+    mediaRecorder.addEventListener(
+      "stop",
+      handleRecordingStop
+    );
+
+    mediaRecorder.start();
+
+    recordButton.textContent = "⏹ 녹음 종료";
+    recordButton.classList.add("recording");
+
+    showHomeworkStatus(
+      "문장을 읽어주세요.",
+      ""
+    );
+
+    startRecordingTimer();
+
+  } catch (error) {
+    console.error(error);
+
+    showHomeworkStatus(
+      getMicrophoneErrorMessage(error),
+      "error"
+    );
+  }
+}
+
+function handleRecordingData(event) {
+  if (event.data && event.data.size > 0) {
+    recordedChunks.push(event.data);
+  }
+}
+
+function stopRecording() {
+  if (!mediaRecorder || mediaRecorder.state !== "recording") {
+    return;
+  }
+
+  mediaRecorder.stop();
+  stopRecordingTimer();
+
+  const recordButton =
+    document.getElementById("recordButton");
+
+  recordButton.textContent = "🎤 다시 녹음";
+  recordButton.classList.remove("recording");
+}
+
+function handleRecordingStop() {
+  const recordingPlayer =
+    document.getElementById("recordingPlayer");
+
+  const mimeType =
+    mediaRecorder?.mimeType || "audio/webm";
+
+  const audioBlob =
+    new Blob(recordedChunks, {
+      type: mimeType
+    });
+
+  recordingAudioUrl =
+    URL.createObjectURL(audioBlob);
+
+  recordingPlayer.src = recordingAudioUrl;
+  recordingPlayer.classList.remove("hidden");
+
+  stopMicrophoneStream();
+
+  showHomeworkStatus(
+    "녹음을 재생해 확인해주세요.",
+    "success"
+  );
+
+  console.log({
+    audioSize: audioBlob.size,
+    audioType: audioBlob.type
+  });
+}
+
+function startRecordingTimer() {
+  stopRecordingTimer();
+  updateRecordingTimer();
+
+  const timerElement =
+    document.getElementById("recordingTimer");
+
+  timerElement.classList.add("active");
+
+  recordingTimerId = window.setInterval(function() {
+    recordingSeconds += 1;
+    updateRecordingTimer();
+
+    if (recordingSeconds >= 30) {
+      stopRecording();
+    }
+  }, 1000);
+}
+
+function stopRecordingTimer() {
+  if (recordingTimerId) {
+    window.clearInterval(recordingTimerId);
+    recordingTimerId = null;
+  }
+
+  const timerElement =
+    document.getElementById("recordingTimer");
+
+  if (timerElement) {
+    timerElement.classList.remove("active");
+  }
+}
+
+function updateRecordingTimer() {
+  const timerElement =
+    document.getElementById("recordingTimer");
+
+  const seconds =
+    String(recordingSeconds).padStart(2, "0");
+
+  timerElement.textContent =
+    `00:${seconds} / 00:30`;
+}
+
+function stopMicrophoneStream() {
+  if (!microphoneStream) {
+    return;
+  }
+
+  microphoneStream
+    .getTracks()
+    .forEach(function(track) {
+      track.stop();
+    });
+
+  microphoneStream = null;
+}
+
+function showHomeworkStatus(message, type) {
+  const homeworkStatus =
+    document.getElementById("homeworkStatus");
+
+  homeworkStatus.textContent = message;
+  homeworkStatus.className = "status-message";
+
+  if (type) {
+    homeworkStatus.classList.add(type);
+  }
+}
+
+function getMicrophoneErrorMessage(error) {
+  if (
+    error.name === "NotAllowedError" ||
+    error.name === "SecurityError"
+  ) {
+    return "마이크 사용을 허용해주세요.";
+  }
+
+  if (error.name === "NotFoundError") {
+    return "사용 가능한 마이크를 찾을 수 없습니다.";
+  }
+
+  return "녹음을 시작하지 못했습니다.";
+}
