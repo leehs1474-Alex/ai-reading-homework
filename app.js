@@ -571,79 +571,7 @@ function showStatus(message, type) {
   }
 }
 
-function showHomeworkScreen(homework) {
-  const loginScreen =
-    document.getElementById(
-      "loginScreen"
-    );
 
-  const homeworkScreen =
-    document.getElementById(
-      "homeworkScreen"
-    );
-
-  const homeworkTitle =
-    document.getElementById(
-      "homeworkTitle"
-    );
-
-  const bookTitle =
-    document.getElementById(
-      "bookTitle"
-    );
-
-  const sentenceProgress =
-    document.getElementById(
-      "sentenceProgress"
-    );
-
-  const sentenceText =
-    document.getElementById(
-      "sentenceText"
-    );
-
-  const firstSentence =
-    homework.sentences?.[0];
-
-  if (!firstSentence) {
-    showStatus(
-      "숙제 문장을 찾을 수 없습니다.",
-      "error"
-    );
-    return;
-  }
-
-  currentSentence =
-    firstSentence;
-
-  resetRecordingState();
-
-  homeworkTitle.textContent =
-    homework.homeworkTitle ||
-    "Reading 숙제";
-
-  bookTitle.textContent =
-    homework.bookTitle || "";
-
-  sentenceProgress.textContent =
-    `문장 1 / ${homework.sentenceCount}`;
-
-  sentenceText.textContent =
-    firstSentence.sentenceText;
-
-  showHomeworkStatus(
-    "문장을 소리 내어 읽어보세요.",
-    ""
-  );
-
-  loginScreen.classList.add(
-    "hidden"
-  );
-
-  homeworkScreen.classList.remove(
-    "hidden"
-  );
-}
 
 async function handleRecordButtonClick() {
   if (isUploadingRecording) {
