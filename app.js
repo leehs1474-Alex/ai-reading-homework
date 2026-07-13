@@ -278,7 +278,26 @@ async function handleStartClick() {
     currentHomework =
       data.homework;
 
-    function showHomeworkScreen(homework) {
+     showHomeworkScreen(
+      data.homework
+    );
+
+  } catch (error) {
+    console.error(error);
+
+    showStatus(
+      "숙제를 불러오지 못했습니다. 다시 시도해주세요.",
+      "error"
+    );
+
+  } finally {
+    startButton.disabled = false;
+    startButton.textContent =
+      "숙제 시작";
+  }
+}
+
+function showHomeworkScreen(homework) {
   const loginScreen =
     document.getElementById(
       "loginScreen"
@@ -415,6 +434,7 @@ function finishCurrentHomework() {
     "success"
   );
 }
+
 
 async function requestApi(
   action,
