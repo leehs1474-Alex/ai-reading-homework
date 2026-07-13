@@ -15,7 +15,10 @@
 
   <title>Reading Homework</title>
 
-  <link rel="stylesheet" href="style.css">
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
 </head>
 
 <body>
@@ -31,7 +34,9 @@
           READING HOMEWORK
         </p>
 
-        <h1>오늘의 Reading 숙제</h1>
+        <h1>
+          오늘의 Reading 숙제
+        </h1>
 
         <p class="intro-text">
           반과 이름을 선택하면 숙제를 시작할 수 있어요.
@@ -92,7 +97,7 @@
       id="homeworkScreen"
       class="homework-card hidden"
     >
-      <header class="header-area">
+      <header class="header-area homework-header">
         <p class="academy-label">
           TODAY'S HOMEWORK
         </p>
@@ -148,20 +153,38 @@
           <button
             id="submitRecordingButton"
             type="button"
-            class="hidden"
+            class="submit-recording-button hidden"
             disabled
           >
             ✅ 이 녹음 제출하기
           </button>
         </section>
 
-        <p
-          id="homeworkStatus"
-          class="status-message"
+        <!-- AI 피드백 카드 -->
+        <section
+          id="feedbackCard"
+          class="feedback-card feedback-neutral"
           aria-live="polite"
         >
-          문장을 소리 내어 읽어보세요.
-        </p>
+          <p
+            id="feedbackLabel"
+            class="feedback-label"
+          >
+            🤖 AI Reading Feedback
+          </p>
+
+          <p
+            id="homeworkStatus"
+            class="feedback-message"
+          >
+            문장을 소리 내어 읽어보세요.
+          </p>
+
+          <div
+            id="feedbackDetails"
+            class="feedback-details hidden"
+          ></div>
+        </section>
       </section>
     </section>
 
