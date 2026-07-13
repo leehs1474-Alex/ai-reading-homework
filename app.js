@@ -853,6 +853,9 @@ async function handleSubmitRecordingClick() {
 className:
   currentClassName,
 
+classAssignmentId:
+  currentHomework?.classAssignmentId || "",
+
 homeworkId:
   homeworkId,
 
