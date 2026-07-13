@@ -3,7 +3,6 @@
 const API_URL =
   "https://script.google.com/macros/s/AKfycbykgxy9mGqvOZ686S_dcikojosLiw5_3BJ6z92YfSXt_wGRsSmrb0Odv7YEC8eEJ3E/exec";
 
-
 const classSelect =
   document.getElementById("classSelect");
 
@@ -24,7 +23,6 @@ const submitRecordingButton =
     "submitRecordingButton"
   );
 
-
 let mediaRecorder = null;
 let microphoneStream = null;
 let recordedChunks = [];
@@ -39,18 +37,15 @@ let currentHomework = null;
 let currentSentence = null;
 let isUploadingRecording = false;
 
-
 document.addEventListener(
   "DOMContentLoaded",
   initializeApp
 );
 
-
 async function initializeApp() {
   bindEvents();
   await loadClasses();
 }
-
 
 function bindEvents() {
   classSelect.addEventListener(
@@ -78,7 +73,6 @@ function bindEvents() {
     handleSubmitRecordingClick
   );
 }
-
 
 async function loadClasses() {
   setLoadingState(true);
@@ -121,13 +115,11 @@ async function loadClasses() {
   }
 }
 
-
 async function handleClassChange() {
   const className =
     classSelect.value;
 
   resetStudentSelect();
-
   startButton.disabled = true;
 
   if (!className) {
@@ -135,7 +127,6 @@ async function handleClassChange() {
       "반을 선택해주세요.",
       ""
     );
-
     return;
   }
 
@@ -179,7 +170,6 @@ async function handleClassChange() {
         "이 반에 등록된 학생이 없습니다.",
         "error"
       );
-
       return;
     }
 
@@ -201,7 +191,6 @@ async function handleClassChange() {
   }
 }
 
-
 function handleStudentChange() {
   startButton.disabled =
     !studentSelect.value;
@@ -211,7 +200,6 @@ function handleStudentChange() {
       "숙제 시작 버튼을 눌러주세요.",
       "success"
     );
-
   } else {
     showStatus(
       "이름을 선택해주세요.",
@@ -219,7 +207,6 @@ function handleStudentChange() {
     );
   }
 }
-
 
 async function handleStartClick() {
   const selectedOption =
@@ -236,20 +223,15 @@ async function handleStartClick() {
   const className =
     classSelect.value;
 
-  if (
-    !className ||
-    !studentId
-  ) {
+  if (!className || !studentId) {
     showStatus(
       "반과 이름을 모두 선택해주세요.",
       "error"
     );
-
     return;
   }
 
   startButton.disabled = true;
-
   startButton.textContent =
     "숙제를 불러오는 중...";
 
@@ -283,7 +265,6 @@ async function handleStartClick() {
         "현재 해야 할 숙제가 없습니다.",
         "success"
       );
-
       return;
     }
 
@@ -310,12 +291,10 @@ async function handleStartClick() {
 
   } finally {
     startButton.disabled = false;
-
     startButton.textContent =
       "숙제 시작";
   }
 }
-
 
 async function requestApi(
   action,
@@ -359,7 +338,6 @@ async function requestApi(
   return response.json();
 }
 
-
 async function postApi(
   requestData
 ) {
@@ -396,10 +374,7 @@ async function postApi(
   return response.json();
 }
 
-
-function renderClassOptions(
-  classes
-) {
+function renderClassOptions(classes) {
   classSelect.innerHTML =
     '<option value="">반을 선택하세요</option>';
 
@@ -423,10 +398,7 @@ function renderClassOptions(
   );
 }
 
-
-function renderStudentOptions(
-  students
-) {
+function renderStudentOptions(students) {
   studentSelect.innerHTML =
     '<option value="">이름을 선택하세요</option>';
 
@@ -450,7 +422,6 @@ function renderStudentOptions(
   );
 }
 
-
 function resetStudentSelect() {
   studentSelect.innerHTML =
     '<option value="">먼저 반을 선택하세요</option>';
@@ -458,10 +429,7 @@ function resetStudentSelect() {
   studentSelect.disabled = true;
 }
 
-
-function setLoadingState(
-  isLoading
-) {
+function setLoadingState(isLoading) {
   if (isLoading) {
     classSelect.disabled = true;
     studentSelect.disabled = true;
@@ -469,11 +437,7 @@ function setLoadingState(
   }
 }
 
-
-function showStatus(
-  message,
-  type
-) {
+function showStatus(message, type) {
   statusMessage.textContent =
     message;
 
@@ -487,10 +451,7 @@ function showStatus(
   }
 }
 
-
-function showHomeworkScreen(
-  homework
-) {
+function showHomeworkScreen(homework) {
   const loginScreen =
     document.getElementById(
       "loginScreen"
@@ -529,7 +490,6 @@ function showHomeworkScreen(
       "숙제 문장을 찾을 수 없습니다.",
       "error"
     );
-
     return;
   }
 
@@ -565,7 +525,6 @@ function showHomeworkScreen(
   );
 }
 
-
 async function handleRecordButtonClick() {
   if (isUploadingRecording) {
     return;
@@ -582,7 +541,6 @@ async function handleRecordButtonClick() {
   await startRecording();
 }
 
-
 async function startRecording() {
   const recordingPlayer =
     document.getElementById(
@@ -598,15 +556,15 @@ async function startRecording() {
       "이 브라우저에서는 녹음 기능을 사용할 수 없습니다.",
       "error"
     );
-
     return;
   }
 
   try {
     microphoneStream =
-      await navigator.mediaDevices.getUserMedia({
-        audio: true
-      });
+      await navigator.mediaDevices
+        .getUserMedia({
+          audio: true
+        });
 
     recordedChunks = [];
     recordedAudioBlob = null;
@@ -616,7 +574,6 @@ async function startRecording() {
       URL.revokeObjectURL(
         recordingAudioUrl
       );
-
       recordingAudioUrl = "";
     }
 
@@ -624,14 +581,12 @@ async function startRecording() {
     recordingPlayer.removeAttribute(
       "src"
     );
-
     recordingPlayer.classList.add(
       "hidden"
     );
 
     submitRecordingButton.disabled =
       true;
-
     submitRecordingButton.classList.add(
       "hidden"
     );
@@ -669,7 +624,6 @@ async function startRecording() {
 
   } catch (error) {
     console.error(error);
-
     stopMicrophoneStream();
 
     showHomeworkStatus(
@@ -681,10 +635,7 @@ async function startRecording() {
   }
 }
 
-
-function handleRecordingData(
-  event
-) {
+function handleRecordingData(event) {
   if (
     event.data &&
     event.data.size > 0
@@ -695,7 +646,6 @@ function handleRecordingData(
   }
 }
 
-
 function stopRecording() {
   if (
     !mediaRecorder ||
@@ -705,7 +655,6 @@ function stopRecording() {
   }
 
   mediaRecorder.stop();
-
   stopRecordingTimer();
 
   recordButton.textContent =
@@ -715,7 +664,6 @@ function stopRecording() {
     "recording"
   );
 }
-
 
 function handleRecordingStop() {
   const recordingPlayer =
@@ -760,16 +708,7 @@ function handleRecordingStop() {
     "녹음을 들어본 뒤 제출해주세요.",
     "success"
   );
-
-  console.log({
-    audioSize:
-      recordedAudioBlob.size,
-
-    audioType:
-      recordedAudioBlob.type
-  });
 }
-
 
 async function handleSubmitRecordingClick() {
   if (isUploadingRecording) {
@@ -784,7 +723,6 @@ async function handleSubmitRecordingClick() {
       "먼저 문장을 녹음해주세요.",
       "error"
     );
-
     return;
   }
 
@@ -794,33 +732,28 @@ async function handleSubmitRecordingClick() {
   const sentenceId =
     currentSentence?.sentenceId;
 
+  const expectedText =
+    currentSentence?.sentenceText;
+
   if (
     !currentStudentId ||
     !homeworkId ||
-    !sentenceId
+    !sentenceId ||
+    !expectedText
   ) {
     console.error({
-      currentStudentId:
-        currentStudentId,
-
-      homeworkId:
-        homeworkId,
-
-      sentenceId:
-        sentenceId,
-
-      currentHomework:
-        currentHomework,
-
-      currentSentence:
-        currentSentence
+      currentStudentId,
+      homeworkId,
+      sentenceId,
+      expectedText,
+      currentHomework,
+      currentSentence
     });
 
     showHomeworkStatus(
       "제출 정보를 확인하지 못했습니다.",
       "error"
     );
-
     return;
   }
 
@@ -846,6 +779,9 @@ async function handleSubmitRecordingClick() {
         sentenceId:
           sentenceId,
 
+        expectedText:
+          expectedText,
+
         mimeType:
           recordedAudioBlob.type ||
           "audio/webm",
@@ -857,37 +793,53 @@ async function handleSubmitRecordingClick() {
     if (!result.success) {
       throw new Error(
         result.message ||
-        "녹음 파일 저장에 실패했습니다."
+        "AI 분석에 실패했습니다."
       );
     }
 
     console.log(
-      "녹음 제출 성공",
+      "AI 분석 성공",
       result
     );
 
     submitRecordingButton.textContent =
-      "✅ 제출 완료";
+      "✅ AI 확인 완료";
 
     submitRecordingButton.disabled =
       true;
 
-    recordButton.disabled =
-      true;
+    const feedback =
+      result.analysis?.feedback ||
+      "AI 확인이 완료되었습니다.";
 
     showHomeworkStatus(
-      "녹음이 정상적으로 제출되었습니다.",
-      "success"
+      feedback,
+      result.analysis?.retryRequired
+        ? "error"
+        : "success"
     );
+
+    if (
+      result.analysis?.retryRequired
+    ) {
+      recordButton.disabled =
+        false;
+
+      recordButton.textContent =
+        "🎤 다시 녹음";
+    } else {
+      recordButton.disabled =
+        true;
+    }
 
   } catch (error) {
     console.error(
-      "녹음 제출 오류",
+      "녹음 제출 및 AI 분석 오류",
       error
     );
 
     showHomeworkStatus(
-      "녹음을 제출하지 못했습니다. 다시 시도해주세요.",
+      "AI 확인에 실패했습니다. 다시 시도해주세요.",
       "error"
     );
 
@@ -895,15 +847,9 @@ async function handleSubmitRecordingClick() {
   }
 }
 
-
-function blobToBase64(
-  blob
-) {
+function blobToBase64(blob) {
   return new Promise(
-    function (
-      resolve,
-      reject
-    ) {
+    function (resolve, reject) {
       const reader =
         new FileReader();
 
@@ -924,7 +870,6 @@ function blobToBase64(
                 "음성 데이터를 변환하지 못했습니다."
               )
             );
-
             return;
           }
 
@@ -947,17 +892,12 @@ function blobToBase64(
         }
       );
 
-      reader.readAsDataURL(
-        blob
-      );
+      reader.readAsDataURL(blob);
     }
   );
 }
 
-
-function setUploadingState(
-  isUploading
-) {
+function setUploadingState(isUploading) {
   isUploadingRecording =
     isUploading;
 
@@ -966,16 +906,15 @@ function setUploadingState(
       true;
 
     submitRecordingButton.textContent =
-      "⏳ 녹음을 저장하고 있습니다...";
+      "⏳ AI가 확인하고 있습니다...";
 
     recordButton.disabled =
       true;
 
     showHomeworkStatus(
-      "녹음을 저장하고 있습니다.",
+      "AI가 읽기를 확인하고 있습니다.",
       ""
     );
-
   } else {
     submitRecordingButton.disabled =
       false;
@@ -987,7 +926,6 @@ function setUploadingState(
       false;
   }
 }
-
 
 function resetRecordingState() {
   stopRecordingTimer();
@@ -1003,7 +941,6 @@ function resetRecordingState() {
     URL.revokeObjectURL(
       recordingAudioUrl
     );
-
     recordingAudioUrl = "";
   }
 
@@ -1013,30 +950,24 @@ function resetRecordingState() {
     );
 
   recordingPlayer.pause();
-
   recordingPlayer.removeAttribute(
     "src"
   );
-
   recordingPlayer.classList.add(
     "hidden"
   );
 
   recordButton.disabled = false;
-
   recordButton.textContent =
     "🎤 녹음 시작";
-
   recordButton.classList.remove(
     "recording"
   );
 
   submitRecordingButton.disabled =
     true;
-
   submitRecordingButton.textContent =
     "✅ 이 녹음 제출하기";
-
   submitRecordingButton.classList.add(
     "hidden"
   );
@@ -1044,12 +975,9 @@ function resetRecordingState() {
   updateRecordingTimer();
 }
 
-
 function startRecordingTimer() {
   stopRecordingTimer();
-
   recordingSeconds = 0;
-
   updateRecordingTimer();
 
   const timerElement =
@@ -1065,7 +993,6 @@ function startRecordingTimer() {
     window.setInterval(
       function () {
         recordingSeconds += 1;
-
         updateRecordingTimer();
 
         if (
@@ -1078,13 +1005,11 @@ function startRecordingTimer() {
     );
 }
 
-
 function stopRecordingTimer() {
   if (recordingTimerId) {
     window.clearInterval(
       recordingTimerId
     );
-
     recordingTimerId = null;
   }
 
@@ -1099,7 +1024,6 @@ function stopRecordingTimer() {
     );
   }
 }
-
 
 function updateRecordingTimer() {
   const timerElement =
@@ -1119,7 +1043,6 @@ function updateRecordingTimer() {
     `00:${seconds} / 00:30`;
 }
 
-
 function stopMicrophoneStream() {
   if (!microphoneStream) {
     return;
@@ -1135,7 +1058,6 @@ function stopMicrophoneStream() {
 
   microphoneStream = null;
 }
-
 
 function showHomeworkStatus(
   message,
@@ -1158,7 +1080,6 @@ function showHomeworkStatus(
     );
   }
 }
-
 
 function getMicrophoneErrorMessage(
   error
