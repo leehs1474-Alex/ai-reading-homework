@@ -35,6 +35,7 @@ let currentStudentId = "";
 let currentClassName = "";
 let currentHomework = null;
 let currentSentence = null;
+let currentSentenceIndex = 0;
 let isUploadingRecording = false;
 
 document.addEventListener(
@@ -277,23 +278,142 @@ async function handleStartClick() {
     currentHomework =
       data.homework;
 
-    showHomeworkScreen(
-      data.homework
+    function showHomeworkScreen(homework) {
+  const loginScreen =
+    document.getElementById(
+      "loginScreen"
     );
 
-  } catch (error) {
-    console.error(error);
+  const homeworkScreen =
+    document.getElementById(
+      "homeworkScreen"
+    );
 
+  const homeworkTitle =
+    document.getElementById(
+      "homeworkTitle"
+    );
+
+  const bookTitle =
+    document.getElementById(
+      "bookTitle"
+    );
+
+  const sentences =
+    homework.sentences || [];
+
+  if (sentences.length === 0) {
     showStatus(
-      "숙제를 불러오지 못했습니다. 다시 시도해주세요.",
+      "숙제 문장을 찾을 수 없습니다.",
       "error"
     );
-
-  } finally {
-    startButton.disabled = false;
-    startButton.textContent =
-      "숙제 시작";
+    return;
   }
+
+  homeworkTitle.textContent =
+    homework.homeworkTitle ||
+    "Reading 숙제";
+
+  bookTitle.textContent =
+    homework.bookTitle || "";
+
+  loginScreen.classList.add(
+    "hidden"
+  );
+
+  homeworkScreen.classList.remove(
+    "hidden"
+  );
+
+  showSentence(0);
+}
+
+function showSentence(sentenceIndex) {
+  const sentences =
+    currentHomework?.sentences || [];
+
+  const sentence =
+    sentences[sentenceIndex];
+
+  if (!sentence) {
+    showHomeworkStatus(
+      "문장을 불러오지 못했습니다.",
+      "error"
+    );
+    return;
+  }
+
+  currentSentenceIndex =
+    sentenceIndex;
+
+  currentSentence =
+    sentence;
+
+  resetRecordingState();
+
+  const sentenceProgress =
+    document.getElementById(
+      "sentenceProgress"
+    );
+
+  const sentenceText =
+    document.getElementById(
+      "sentenceText"
+    );
+
+  sentenceProgress.textContent =
+    `문장 ${sentenceIndex + 1} / ${sentences.length}`;
+
+  sentenceText.textContent =
+    sentence.sentenceText;
+
+  showHomeworkStatus(
+    "문장을 소리 내어 읽어보세요.",
+    ""
+  );
+}
+
+function moveToNextSentence() {
+  const sentences =
+    currentHomework?.sentences || [];
+
+  const nextSentenceIndex =
+    currentSentenceIndex + 1;
+
+  if (
+    nextSentenceIndex <
+    sentences.length
+  ) {
+    showHomeworkStatus(
+      "잘했어요! 다음 문장으로 이동합니다.",
+      "success"
+    );
+
+    window.setTimeout(
+      function () {
+        showSentence(
+          nextSentenceIndex
+        );
+      },
+      1200
+    );
+
+    return;
+  }
+
+  finishCurrentHomework();
+}
+
+function finishCurrentHomework() {
+  resetRecordingState();
+
+  recordButton.disabled = true;
+  submitRecordingButton.disabled = true;
+
+  showHomeworkStatus(
+    "모든 문장을 읽었습니다! 숙제를 완료했어요.",
+    "success"
+  );
 }
 
 async function requestApi(
@@ -770,11 +890,14 @@ async function handleSubmitRecordingClick() {
         action:
           "uploadRecording",
 
-        studentId:
-          currentStudentId,
+       studentId:
+  currentStudentId,
 
-        homeworkId:
-          homeworkId,
+className:
+  currentClassName,
+
+homeworkId:
+  homeworkId,
 
         sentenceId:
           sentenceId,
@@ -802,35 +925,47 @@ async function handleSubmitRecordingClick() {
       result
     );
 
-    submitRecordingButton.textContent =
-      "✅ AI 확인 완료";
+    isUploadingRecording = false;
 
-    submitRecordingButton.disabled =
-      true;
+submitRecordingButton.textContent =
+  "✅ AI 확인 완료";
 
-    const feedback =
-      result.analysis?.feedback ||
-      "AI 확인이 완료되었습니다.";
+submitRecordingButton.disabled =
+  true;
 
-    showHomeworkStatus(
-      feedback,
-      result.analysis?.retryRequired
-        ? "error"
-        : "success"
-    );
+const feedback =
+  result.analysis?.feedback ||
+  "AI 확인이 완료되었습니다.";
 
-    if (
-      result.analysis?.retryRequired
-    ) {
-      recordButton.disabled =
-        false;
+const retryRequired =
+  Boolean(
+    result.analysis?.retryRequired
+  );
 
-      recordButton.textContent =
-        "🎤 다시 녹음";
-    } else {
-      recordButton.disabled =
-        true;
-    }
+showHomeworkStatus(
+  feedback,
+  retryRequired
+    ? "error"
+    : "success"
+);
+
+if (retryRequired) {
+  recordButton.disabled =
+    false;
+
+  recordButton.textContent =
+    "🎤 다시 녹음";
+
+  return;
+}
+
+recordButton.disabled =
+  true;
+
+window.setTimeout(
+  moveToNextSentence,
+  1200
+);
 
   } catch (error) {
     console.error(
