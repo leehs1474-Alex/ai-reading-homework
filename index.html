@@ -117,7 +117,6 @@
           <p id="sentenceText"></p>
         </div>
 
-        <!-- 녹음 영역 -->
         <section
           class="recording-area"
           aria-label="문장 녹음"
@@ -145,6 +144,15 @@
           >
             이 브라우저에서는 음성 재생을 지원하지 않습니다.
           </audio>
+
+          <button
+            id="submitRecordingButton"
+            type="button"
+            class="hidden"
+            disabled
+          >
+            ✅ 이 녹음 제출하기
+          </button>
         </section>
 
         <p
