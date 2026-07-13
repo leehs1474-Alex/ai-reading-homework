@@ -37,6 +37,7 @@ let currentHomework = null;
 let currentSentence = null;
 let currentSentenceIndex = 0;
 let isUploadingRecording = false;
+let isRetryRecording = false;
 
 document.addEventListener(
   "DOMContentLoaded",
@@ -634,6 +635,10 @@ async function startRecording() {
           audio: true
         });
 
+    isRetryRecording =
+  recordButton.textContent.includes(
+    "다시"
+  );
     recordedChunks = [];
     recordedAudioBlob = null;
     recordingSeconds = 0;
@@ -769,6 +774,10 @@ function handleRecordingStop() {
   submitRecordingButton.classList.remove(
     "hidden"
   );
+  submitRecordingButton.textContent =
+  isRetryRecording
+    ? "✅ AI에게 다시 확인받기"
+    : "✅ AI에게 확인받기";
 
   stopMicrophoneStream();
 
@@ -881,20 +890,13 @@ submitRecordingButton.textContent =
 submitRecordingButton.disabled =
   true;
 
-const feedback =
-  result.analysis?.feedback ||
-  "AI 확인이 완료되었습니다.";
-
 const retryRequired =
   Boolean(
     result.analysis?.retryRequired
   );
 
-showHomeworkStatus(
-  feedback,
-  retryRequired
-    ? "error"
-    : "success"
+showAIFeedback(
+  result.analysis || {}
 );
 
 if (retryRequired) {
@@ -902,7 +904,13 @@ if (retryRequired) {
     false;
 
   recordButton.textContent =
-    "🎤 다시 녹음";
+    "🔁 다시 녹음하기";
+
+  submitRecordingButton.disabled =
+    true;
+
+  submitRecordingButton.textContent =
+    "✅ AI에게 다시 확인받기";
 
   return;
 }
@@ -995,9 +1003,9 @@ function setUploadingState(isUploading) {
       true;
 
     showHomeworkStatus(
-      "AI가 읽기를 확인하고 있습니다.",
-      ""
-    );
+  "🤖 AI 선생님이 읽기를 확인하고 있습니다...",
+  "loading"
+);
   } else {
     submitRecordingButton.disabled =
       false;
@@ -1019,6 +1027,7 @@ function resetRecordingState() {
   recordingSeconds = 0;
   mediaRecorder = null;
   isUploadingRecording = false;
+  isRetryRecording = false;
 
   if (recordingAudioUrl) {
     URL.revokeObjectURL(
@@ -1146,22 +1155,291 @@ function showHomeworkStatus(
   message,
   type
 ) {
+  const feedbackCard =
+    document.getElementById(
+      "feedbackCard"
+    );
+
   const homeworkStatus =
     document.getElementById(
       "homeworkStatus"
     );
 
+  const feedbackDetails =
+    document.getElementById(
+      "feedbackDetails"
+    );
+
+  if (
+    !feedbackCard ||
+    !homeworkStatus ||
+    !feedbackDetails
+  ) {
+    console.error(
+      "AI 피드백 카드 요소를 찾지 못했습니다."
+    );
+    return;
+  }
+
   homeworkStatus.textContent =
     message;
 
-  homeworkStatus.className =
-    "status-message";
+  feedbackDetails.innerHTML = "";
 
-  if (type) {
-    homeworkStatus.classList.add(
-      type
+  feedbackDetails.classList.add(
+    "hidden"
+  );
+
+  feedbackCard.className =
+    "feedback-card";
+
+  if (type === "error") {
+    feedbackCard.classList.add(
+      "feedback-error"
+    );
+    return;
+  }
+
+  if (type === "success") {
+    feedbackCard.classList.add(
+      "feedback-success"
+    );
+    return;
+  }
+
+  if (type === "loading") {
+    feedbackCard.classList.add(
+      "feedback-loading"
+    );
+    return;
+  }
+
+  feedbackCard.classList.add(
+    "feedback-neutral"
+  );
+}
+
+function showAIFeedback(analysis) {
+  const feedbackCard =
+    document.getElementById(
+      "feedbackCard"
+    );
+
+  const homeworkStatus =
+    document.getElementById(
+      "homeworkStatus"
+    );
+
+  const feedbackDetails =
+    document.getElementById(
+      "feedbackDetails"
+    );
+
+  if (
+    !feedbackCard ||
+    !homeworkStatus ||
+    !feedbackDetails
+  ) {
+    console.error(
+      "AI 피드백 카드 요소를 찾지 못했습니다."
+    );
+    return;
+  }
+
+  const retryRequired =
+    Boolean(
+      analysis?.retryRequired
+    );
+
+  const missingWords =
+    Array.isArray(
+      analysis?.missingWords
+    )
+      ? analysis.missingWords
+      : [];
+
+  const wrongWords =
+    Array.isArray(
+      analysis?.wrongWords
+    )
+      ? analysis.wrongWords
+      : [];
+
+  const extraWords =
+    Array.isArray(
+      analysis?.extraWords
+    )
+      ? analysis.extraWords
+      : [];
+
+  feedbackDetails.innerHTML = "";
+
+  feedbackDetails.classList.remove(
+    "hidden"
+  );
+
+  feedbackCard.className =
+    "feedback-card";
+
+  if (!retryRequired) {
+    feedbackCard.classList.add(
+      "feedback-success"
+    );
+
+    homeworkStatus.textContent =
+      "🎉 Excellent! 아주 잘 읽었어요.";
+
+    const nextMessage =
+      document.createElement(
+        "p"
+      );
+
+    nextMessage.className =
+      "feedback-retry-message";
+
+    nextMessage.textContent =
+      "다음 문장으로 이동합니다.";
+
+    feedbackDetails.appendChild(
+      nextMessage
+    );
+
+    return;
+  }
+
+  feedbackCard.classList.add(
+    "feedback-error"
+  );
+
+  homeworkStatus.textContent =
+    "🔁 다시 읽어보세요!";
+
+  if (missingWords.length > 0) {
+    appendFeedbackWords(
+      feedbackDetails,
+      "빠진 단어",
+      missingWords
     );
   }
+
+  if (wrongWords.length > 0) {
+    const expectedWords =
+      wrongWords
+        .map(
+          function (item) {
+            if (
+              item &&
+              typeof item === "object"
+            ) {
+              return item.expected || "";
+            }
+
+            return String(
+              item || ""
+            );
+          }
+        )
+        .filter(Boolean);
+
+    if (expectedWords.length > 0) {
+      appendFeedbackWords(
+        feedbackDetails,
+        "다시 확인할 단어",
+        expectedWords
+      );
+    }
+  }
+
+  if (extraWords.length > 0) {
+    appendFeedbackWords(
+      feedbackDetails,
+      "추가로 읽은 단어",
+      extraWords
+    );
+  }
+
+  const retryMessage =
+    document.createElement(
+      "p"
+    );
+
+  retryMessage.className =
+    "feedback-retry-message";
+
+  retryMessage.textContent =
+    analysis?.feedback ||
+    "위 단어를 확인하고 다시 읽어보세요.";
+
+  feedbackDetails.appendChild(
+    retryMessage
+  );
+}
+
+function appendFeedbackWords(
+  container,
+  title,
+  words
+) {
+  const validWords =
+    words
+      .map(
+        function (word) {
+          return String(
+            word || ""
+          ).trim();
+        }
+      )
+      .filter(Boolean);
+
+  if (validWords.length === 0) {
+    return;
+  }
+
+  const titleElement =
+    document.createElement(
+      "p"
+    );
+
+  titleElement.className =
+    "feedback-detail-title";
+
+  titleElement.textContent =
+    title;
+
+  const wordList =
+    document.createElement(
+      "div"
+    );
+
+  wordList.className =
+    "feedback-word-list";
+
+  validWords.forEach(
+    function (word) {
+      const wordElement =
+        document.createElement(
+          "span"
+        );
+
+      wordElement.className =
+        "feedback-word";
+
+      wordElement.textContent =
+        word;
+
+      wordList.appendChild(
+        wordElement
+      );
+    }
+  );
+
+  container.appendChild(
+    titleElement
+  );
+
+  container.appendChild(
+    wordList
+  );
 }
 
 function getMicrophoneErrorMessage(
