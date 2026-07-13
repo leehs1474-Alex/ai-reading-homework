@@ -424,16 +424,62 @@ function moveToNextSentence() {
   finishCurrentHomework();
 }
 
-function finishCurrentHomework() {
+async function finishCurrentHomework() {
   resetRecordingState();
 
   recordButton.disabled = true;
   submitRecordingButton.disabled = true;
 
   showHomeworkStatus(
-    "모든 문장을 읽었습니다! 숙제를 완료했어요.",
-    "success"
+    "⏳ 숙제 완료를 저장하고 있습니다...",
+    "loading"
   );
+
+  try {
+    const result =
+      await postApi({
+        action:
+          "completeHomework",
+
+        studentId:
+          currentStudentId,
+
+        classAssignmentId:
+          currentHomework?.classAssignmentId || "",
+
+        homeworkId:
+          currentHomework?.homeworkId || ""
+      });
+
+    if (!result.success) {
+      throw new Error(
+        result.message ||
+        "숙제 완료 처리에 실패했습니다."
+      );
+    }
+
+    showHomeworkStatus(
+      "🎉 모든 문장을 읽었습니다! 숙제를 완료했어요.",
+      "success"
+    );
+
+    recordButton.textContent =
+      "🎉 숙제 완료";
+
+    recordButton.disabled =
+      true;
+
+  } catch (error) {
+    console.error(
+      "숙제 완료 처리 오류",
+      error
+    );
+
+    showHomeworkStatus(
+      "숙제 완료 저장에 실패했습니다. 선생님께 알려주세요.",
+      "error"
+    );
+  }
 }
 
 
